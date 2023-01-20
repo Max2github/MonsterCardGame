@@ -1,0 +1,60 @@
+﻿{
+  "\/users": {
+    "method": "POST",
+    "schema": [
+      {
+        "name": "Username",
+        "type": "string"
+      },
+      {
+        "name": "Password",
+        "type": "string"
+      }
+    ],
+    "action": [ "user_add", "s0", "s1" ],
+    "auth": [ "all" ]
+  },
+
+  "\/users\/[a-zA-Z0-9]*": {
+    "method": "GET",
+    "schema": [],
+    "action": [ "user_get", "p2" ],
+    "auth": [ "own", "admin" ]
+  },
+
+  "\/users\/[a-zA-Z0-9]*": {
+    "method": "PUT",
+    "schema": [
+      {
+        "name": "Name",
+        "type": "string"
+      },
+      {
+        "name": "Bio",
+        "type": "string"
+      },
+      {
+        "name": "Image",
+        "type": "string"
+      }
+    ],
+    "action": [ "user_update", "p2", "s0", "s1", "s2" ],
+    "auth": [ "own", "admin" ]
+  },
+
+  "\/sessions": {
+    "method": "POST",
+    "schema": [
+      {
+        "name": "Username",
+        "type": "string"
+      },
+      {
+        "name": "Password",
+        "type": "string"
+      }
+    ],
+    "action": [ "user_login", "s0", "s1" ],
+    "auth": [ "all" ]
+  }
+}

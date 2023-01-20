@@ -1,0 +1,48 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net6.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <IsPublishable>False</IsPublishable>
+  </PropertyGroup>
+
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <None Remove="HTTP\" />
+    <None Remove="FrontEnd\" />
+    <None Remove="User\" />
+    <None Remove="Moq" />
+    <None Remove="Helper\" />
+    <None Remove="Newtonsoft.Json" />
+    <None Remove="HTTP\Routing\" />
+    <None Remove="HTTP\Routing\Action\" />
+    <None Remove="HTTP\Routing\Action\Command\" />
+    <None Remove="HTTP\Routing\Action\Command\User\" />
+    <None Remove="Npgsql" />
+    <None Remove="DB\" />
+    <None Remove="Card\" />
+    <None Remove="Card\Battle\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="HTTP\" />
+    <Folder Include="FrontEnd\" />
+    <Folder Include="User\" />
+    <Folder Include="Helper\" />
+    <Folder Include="HTTP\Routing\" />
+    <Folder Include="HTTP\Routing\Action\" />
+    <Folder Include="HTTP\Routing\Action\Command\" />
+    <Folder Include="HTTP\Routing\Action\Command\User\" />
+    <Folder Include="DB\" />
+    <Folder Include="Card\" />
+    <Folder Include="Card\Battle\" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Moq" Version="4.18.4" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.2" />
+    <PackageReference Include="Npgsql" Version="7.0.1" />
+  </ItemGroup>
+</Project>

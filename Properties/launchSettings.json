@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "MonsterCardGame": {
+      "commandName": "Project",
+      "workingDirectory": "$(ProjectDir)"
+    }
+  }
+}

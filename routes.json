@@ -1,0 +1,21 @@
+﻿{
+  "/": "/home",
+  "/css": {
+    "file": "FrontEnd/style.css",
+    "type": "text/css"
+  },
+  "/home": {
+    "file": "FrontEnd/index.html",
+    "type": "text/html"
+  },
+  "/welcome": {
+    "file": "FrontEnd/welcome.html",
+    "type": "text/html"
+  },
+  "/s": "/super",
+  "/super": {
+    "file": "FrontEnd/super.html",
+    "type": "text/html",
+    "requiredLogin": true
+  }
+}
