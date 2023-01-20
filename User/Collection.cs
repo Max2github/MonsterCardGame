@@ -33,7 +33,7 @@ namespace MonsterCardGame.User {
 			return true;
 		}
 
-		public bool UpdateInfo(Info userInfo) {
+		public bool UpdateInfo(Info userInfo, string username) {
 			return true;
 		}
 	}

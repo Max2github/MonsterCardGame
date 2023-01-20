@@ -70,7 +70,7 @@ namespace MonsterCardGame.User {
                 $"{UserDB._SQL_column_name} = @{UserDB._SQL_column_name}, " +
                 $"{UserDB._SQL_column_bio} = @{UserDB._SQL_column_bio}, " +
                 $"{UserDB._SQL_column_image} = @{UserDB._SQL_column_image} " +
-            $") WHERE {UserDB._SQL_column_username} = @{UserDB._SQL_column_username}";
+            $" WHERE {UserDB._SQL_column_username} = @{UserDB._SQL_column_username};";
 
         // constructor(s)
 

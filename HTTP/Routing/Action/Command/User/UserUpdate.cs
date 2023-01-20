@@ -10,7 +10,7 @@ namespace MonsterCardGame.HTTP.Routing.Action.Command.User {
         }
 
 		public bool Execute(Helper.Arguments arguments, Response response) {
-            object oldName = arguments.Get(0);
+            object username = arguments.Get(0);
             object newName = arguments.Get(1);
             object bio	   = arguments.Get(2);
             object image   = arguments.Get(3);
@@ -21,7 +21,7 @@ namespace MonsterCardGame.HTTP.Routing.Action.Command.User {
                 userInfo.Bio = (string)bio;
                 userInfo.Image = (string)image;
 
-				bool success = this._userCollection.UpdateInfo(userInfo);
+				bool success = this._userCollection.UpdateInfo(userInfo, (string) username);
                 if (!success) {
                     response.Status(Response.Status_e.NOT_FOUND_404);
                     return false;
