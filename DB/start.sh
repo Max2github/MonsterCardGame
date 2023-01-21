@@ -16,8 +16,15 @@ echo -e "INFO: started postgres\n"
 
 timeout=10
 echo -e "INFO: wait for $timeout seconds"
-echo -e "$info_sep\n"
-sleep $timeout
+echo "$info_sep"
+#sleep $timeout
+for i in $(seq $timeout 0)
+do
+	echo -ne "\b\b  \b\b"
+	echo -n "$i"
+	sleep 1
+done
+echo -e "\n"
 
 # create DB
 docker exec -i $container createdb -U $user $db_name

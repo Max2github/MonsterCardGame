@@ -22,7 +22,7 @@ namespace MonsterCardGame.HTTP.Routing {
             }
 
             public static readonly string Dir = Directory.GetCurrentDirectory() + "/";
-            private List<routeObj> _routeObj = new();
+            private readonly List<routeObj> _routeObj = new();
             // private readonly User.Collection _userCollection;
 
             // public Actions() { } // create dummy / invalid instance

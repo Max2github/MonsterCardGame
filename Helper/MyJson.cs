@@ -13,7 +13,7 @@ namespace MonsterCardGame.Helper {
             try {
                 this._json = JsonDocument.Parse(jsonStr).RootElement;
             } catch (JsonException) {
-                throw new JsonException();
+                throw;
             }
             this._type = this._json.ValueKind;
 

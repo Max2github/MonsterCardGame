@@ -33,4 +33,4 @@ FileRouter fileRouter = new FileRouter("routes.json");
 ActionRouter actionRouter = new ActionRouter(allUsers, "actions.json");
 
 Server serv = new Server(actionRouter);
-serv.Start(80);
+serv.Start(10001);

@@ -6,19 +6,11 @@ using Npgsql;
 
 namespace MonsterCardGame.DB {
 	internal class Database {
-        private string _connectionString = "";
-        private NpgsqlConnection? _connection = null;
-
-        // private readonly static string _SQL_SELECT = "SELECT * FROM @table WHERE @key=@val";
+        private readonly string _connectionString = "";
 
         public Database(string connectionString) {
             this._connectionString = connectionString;
 		}
-
-		public void Connect(string connectionString) {
-            this._connectionString = connectionString;
-            this.Connect();
-        }
 
         // protected
 
@@ -51,10 +43,11 @@ namespace MonsterCardGame.DB {
 
         // private
 
-        private void Connect() {
+        private NpgsqlConnection Connect() {
             try {
-                this._connection = new NpgsqlConnection(this._connectionString);
-                this._connection.Open();
+                var connection = new NpgsqlConnection(this._connectionString);
+                connection.Open();
+                return connection;
             } catch (NpgsqlException) {
                 // provide our own custom exception
                 // throw new DataAccessFailedException("Could not connect to or initialize database", e);
@@ -64,9 +57,9 @@ namespace MonsterCardGame.DB {
 
         private T ExecuteWithDbConnection<T>(Func<NpgsqlConnection, T> command) {
             try {
-                this.Connect();
+                var connection = this.Connect();
 
-                return command(this._connection!);
+                return command(connection);
             } catch (NpgsqlException) {
                 throw;
                 // throw new DataAccessFailedException("Could not connect to database", e);

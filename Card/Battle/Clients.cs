@@ -6,6 +6,7 @@ namespace MonsterCardGame.Card.Battle {
 
 		private HTTP.ClientHandler? _first = null;
 		private HTTP.ClientHandler? _opponent = null;
+		private string? _result = null;
 
 		public void Join(HTTP.ClientHandler client) {
             this._mutex.WaitOne();
@@ -21,10 +22,10 @@ namespace MonsterCardGame.Card.Battle {
 			else if (this._opponent == null) {
                 // add opponent + start battle
                 this._opponent = client;
-                this._mutex.ReleaseMutex();
 
                 this.StartBattle();
-				return;
+                this._mutex.ReleaseMutex();
+                return;
 			}
 			else { /* should never occur, reset this object */ this.Clear(); }
 		}
@@ -38,11 +39,15 @@ namespace MonsterCardGame.Card.Battle {
 					Thread.Sleep(1000); // wait for a second
 					if (this._first == null && this._opponent == null) { break; }
 				}
-                this.StartBattle();
+				while(this._result == null) {}
+				// return this._result
 			}
 			
 			void StartBattle() {
 				// do something
+
+				// set result
+				this._result = "hi";
 
 				// reset the object
 				this.Clear();
@@ -51,6 +56,7 @@ namespace MonsterCardGame.Card.Battle {
 			void Clear() {
 				this._first = null;
 				this._opponent = null;
+				this._result = null;
 				this._mutex.Close();
 			} 
 	}
