@@ -33,8 +33,6 @@ namespace MonsterCardGame.User {
 
         // get
 
-        private static readonly string _SQL_all_users =
-            $"SELECT {UserDB._SQL_column_username} FROM {UserDB._SQL_table};";
         private static readonly string _SQL_get_user =
             $"SELECT * FROM {UserDB._SQL_table} WHERE {UserDB._SQL_column_username}=@{UserDB._SQL_column_username};";
         private static readonly string _SQL_get_user_by_token =
@@ -81,11 +79,7 @@ namespace MonsterCardGame.User {
         // public functions
 
         public int Count() {
-            using var reader = this.ExecSql(_SQL_all_users);
-            if (reader == null) { return -1; }
-            int i = 0;
-            while (reader.Read()) { i++; }
-            return i;
+            return this.Count(UserDB._SQL_table);
         }
 
         public User? Get(string username) {

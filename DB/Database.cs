@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Reflection.Metadata;
+using MonsterCardGame.Card;
 using Newtonsoft.Json.Linq;
 using Npgsql;
 
@@ -8,11 +9,34 @@ namespace MonsterCardGame.DB {
 	internal class Database {
         private readonly string _connectionString = "";
 
+        private static readonly string _SQL_get_all_no_table = "SELECT * FROM ";
+
         public Database(string connectionString) {
             this._connectionString = connectionString;
 		}
 
+        // public
+
+        public int Count(string table) {
+            using var reader = this.GetAll(table);
+            int i = 0;
+            while (reader.Read()) { i++; }
+            return i;
+        }
+
         // protected
+
+        protected NpgsqlDataReader GetAll(string table) {
+            return ExecuteWithDbConnection((connection) => {
+                // AddWithValue does not work
+                // this is only intern, so we can solve it like that
+                string sqlStatement = Database._SQL_get_all_no_table + table + ";";
+                using var cmd = new NpgsqlCommand(sqlStatement, connection);
+                // NpgsqlParameter par = cmd.Parameters.AddWithValue("table", table);
+                NpgsqlDataReader reader = cmd.ExecuteReader();
+                return reader;
+            });
+        }
 
         protected NpgsqlDataReader? ExecSql(string sqlStatement, bool expectAnswer = true, string[]? keys = null, object[]? values = null) {
             if (keys != null && values != null && keys.Length != values.Length) {
