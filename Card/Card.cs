@@ -22,7 +22,7 @@ namespace MonsterCardGame.Card {
     // interface for using the card
     internal interface ICard {
         string Name { get; } // changed per class
-        ushort Damage   { get; } // changed individually - may change it to fighting power / strenght
+        ushort Damage   { get; set; } // changed individually - may change it to fighting power / strenght
         // ushort Life     { get; } // changed individually - may (have to) abolish this
         Type_e Type       { get; } // changed per class
         Element_e Element { get; } // changed individually
@@ -31,7 +31,7 @@ namespace MonsterCardGame.Card {
     }
     // abstract class only used for DRY (Don't Repeat Yourself)
     internal abstract class AbstrCard {
-        public ushort Damage { get; protected set; } = 10;    // dummy default
+        public ushort Damage { get; set; } = 10;    // dummy default
         // public ushort Life { get; protected set; } = 10;    // dummy default
         public Element_e Element { get; protected set; } = Element_e.normal; // dummy default
 

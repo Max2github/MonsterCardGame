@@ -37,12 +37,12 @@ namespace MonsterCardGame.Card {
             return json;
         }
 
-        private static ICard? ICardFromName(string name, Element_e element) {
+        public static ICard? ICardFromName(string name, Element_e element) {
             switch (name) {
                 case "Goblin": return new Goblin(element);
                 case "Wizard": return new Wizard(element);
                 case "Knight": return new Knight(element);
-                case "Kraken": return new Wizard(element);
+                case "Kraken": return new Kraken(element);
                 case "Ork"   : return new Ork(element);
                 case "Elf"   : return new Elf(element);
                 case "Dragon": return new Dragon(element);
@@ -50,7 +50,20 @@ namespace MonsterCardGame.Card {
                 default: return null;
             }
         }
-        private static Element_e? ElementFromName(string name) {
+        public static ICard? ICardFromType(Type_e type, Element_e element) {
+            switch (type) {
+                case Type_e.monster_goblin: return new Goblin(element);
+                case Type_e.monster_wizard: return new Wizard(element);
+                case Type_e.monster_knight: return new Knight(element);
+                case Type_e.monster_kraken: return new Kraken(element);
+                case Type_e.monster_ork   : return new Ork(element);
+                case Type_e.monster_elf   : return new Elf(element);
+                case Type_e.monster_dragon: return new Dragon(element);
+                case Type_e.spell         : return new Spell(element);
+                default: return null;
+            }
+        }
+        public static Element_e? ElementFromName(string name) {
             switch(name) {
                 case "Water" : return Element_e.water;
                 case "Fire"  : return Element_e.fire;
@@ -58,7 +71,7 @@ namespace MonsterCardGame.Card {
                 default: return null;
             }
         }
-        private static string ElementToString(Element_e element) {
+        public static string ElementToString(Element_e element) {
             switch (element) {
                 case Element_e.water : return "Water";
                 case Element_e.fire  : return "Fire";

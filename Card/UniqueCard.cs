@@ -5,15 +5,19 @@ namespace MonsterCardGame.Card {
         public Guid Guid { get; }
         public ICard? Card { get; }
 
+        // create invalid
         public UniqueCard() {
             this.Guid = Guid.Empty;
         }
+        // build with existing elements -> nothing generated
         public UniqueCard(ICard card, Guid guid) {
             this.Card = card;
             this.Guid = guid;
         }
-        public UniqueCard(ICard card) : this(card, Guid.NewGuid()) { }
+        // build with existing elements -> nothing generated
         public UniqueCard(ICard card, string guid) : this(card, Guid.Parse(guid)) { }
+        // create card with new guid
+        public UniqueCard(ICard card) : this(card, Guid.NewGuid()) { }
 
         // IValid
 

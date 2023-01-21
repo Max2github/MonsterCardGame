@@ -1,5 +1,6 @@
 ﻿using System;
-using MonsterCardGame.User;
+using System.Data;
+using Newtonsoft.Json.Linq;
 
 namespace MonsterCardGame.Card {
 	internal class CardDB : DB.Database, ICardManager {
@@ -24,6 +25,9 @@ namespace MonsterCardGame.Card {
             ");";
 
         // get
+
+        private static readonly string _SQL_get =
+            $"SELECT * FROM {CardDB._SQL_table} WHERE {CardDB._SQL_column_id}=@{CardDB._SQL_column_id};";
 
         // insert
 
@@ -52,7 +56,15 @@ namespace MonsterCardGame.Card {
             return base.Count(CardDB._SQL_table);
         }
 
-        public UniqueCard? Get() {
+        public UniqueCard? Get(Guid guid) {
+            var keys = new string[] { CardDB._SQL_column_id };
+            var values = new object[] { guid };
+
+            using var reader = this.ExecSql(CardDB._SQL_get, true, keys, values);
+            if (reader == null) { return null; } // would be an internal server error, never happens
+            if (reader.Read()) {
+                return CardDB.ReadCard(reader);
+            }
             return null;
         }
 
@@ -74,6 +86,23 @@ namespace MonsterCardGame.Card {
             };
             /*using var reader = */this.ExecSql(CardDB._SQL_insert, false, keys, values);
             return true;
+        }
+
+        // private functions
+
+        private static UniqueCard ReadCard(Npgsql.NpgsqlDataReader readingReader) {
+            Guid id           =             readingReader.GetGuid(CardDB._SQL_column_id);
+            Type_e type       = (Type_e)    readingReader.GetInt32(CardDB._SQL_column_type);
+            Element_e element = (Element_e) readingReader.GetInt32(CardDB._SQL_column_element);
+            ushort damage     = (ushort)    readingReader.GetInt32(CardDB._SQL_column_damage);
+
+            ICard? card = Parser.ICardFromType(type, element);
+            if (card == null) {
+                return new UniqueCard(); // invalid
+            }
+            card.Damage = damage;
+
+            return new UniqueCard(card, id);
         }
 	}
 }
