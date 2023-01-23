@@ -5,11 +5,11 @@ using Newtonsoft.Json.Linq;
 namespace MonsterCardGame.Card {
 	internal class CardDB : DB.Database, ICardManager {
         // table name
-        private static readonly string _SQL_table = "cards";
+        internal static readonly string _SQL_table = "cards";
 
         // columns
 
-        private static readonly string _SQL_column_id      = "id";
+        internal static readonly string _SQL_column_id      = "id";
         private static readonly string _SQL_column_type    = "type";
         private static readonly string _SQL_column_element = "element";
         private static readonly string _SQL_column_damage  = "damage";

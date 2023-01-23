@@ -22,7 +22,7 @@ namespace MonsterCardGame.Card {
         // IValid
 
         public bool IsValid() {
-            return !(this.Card == null);
+            return !(this.Card == null || this.Guid == Guid.Empty);
         }
 
         // operator ==
