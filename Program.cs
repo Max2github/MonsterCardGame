@@ -11,10 +11,10 @@ using MonsterCardGame.User;
 // Collection allUsers = new Collection();
 
 string connectionString = "Host=localhost;Port=5432;Username=postgres;Password=postgres;Database=mtcgdb";
-UserDB allUsers = new UserDB(connectionString);
-CardDB allCards = new CardDB(connectionString);
+IUserManager allUsers = new UserDB(connectionString);
+ICardManager allCards = new CardDB(connectionString);
 
-Admin adminUser = new Admin("admin", "admin", "Admin");
+Admin adminUser = new Admin("admin", "istrator", "Administrator");
 allUsers.Add(adminUser);
 
 Console.WriteLine(allUsers.Count());

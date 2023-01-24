@@ -34,7 +34,10 @@ namespace MonsterCardGame.User {
 		}
 
 		public bool UpdateInfo(Info userInfo, string username) {
-			return true;
+			return false;
+		}
+		public bool UpdateMoney(int money, string username) {
+			return false;
 		}
 	}
 }

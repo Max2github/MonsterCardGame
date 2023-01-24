@@ -8,10 +8,23 @@ namespace MonsterCardGame.User {
     internal class User : Helper.IValid {
         public Info Info { get; }
         public Credentials Credentials { get; }
+        public int Money { get; private set; }
 
-        public User(string user, string pass, string name = "", string bio = "", string image = "") {
+        public User(string user, string pass, string name = "", string bio = "", string image = "", int money = 20) {
             this.Info = new Info(name, bio, image);
             this.Credentials = new Credentials(user, pass);
+            this.Money = money;
+        }
+
+        /**
+         * substracts some money
+         * */
+        public bool Pay(ushort amount) {
+            if (this.Money > amount) {
+                this.Money -= amount;
+                return true;
+            }
+            return false; // not enough money
         }
 
         public bool IsValid() { return this.Credentials.IsValid(); }
@@ -21,7 +34,8 @@ namespace MonsterCardGame.User {
      * A user with admin rights
      * */
     internal class Admin : User {
-        public Admin(string user, string pass, string name = "", string bio = "", string image = "") : base(user, pass, bio, image) { }
+        public Admin(string user, string pass, string name = "", string bio = "", string image = "", int money = 20) :
+            base(user, pass, name, bio, image, money) { }
     }
 
     /*

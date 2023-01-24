@@ -8,6 +8,7 @@ namespace MonsterCardGame.User {
 
 		// bool Add(User user);
 		bool UpdateInfo(Info userInfo, string username);
+		bool UpdateMoney(int money, string username);
 	}
 }
 

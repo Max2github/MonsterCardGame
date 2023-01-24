@@ -2,7 +2,7 @@
 using System.Data;
 
 namespace MonsterCardGame.User {
-	internal class UserDB : DB.Database, IUserManager {
+    internal class UserDB : DB.Database, IUserManager {
         // table name
         private static readonly string _SQL_table = "users";
 
@@ -15,19 +15,21 @@ namespace MonsterCardGame.User {
         private static readonly string _SQL_column_name = "name";
         private static readonly string _SQL_column_bio = "bio";
         private static readonly string _SQL_column_image = "image";
+        private static readonly string _SQL_column_money = "money";
         private static readonly string _SQL_column_admin = "admin";
 
         // create / initialize table
 
         private static readonly string _SQL_create_table =
             $"CREATE TABLE IF NOT EXISTS {UserDB._SQL_table} (" +
-                $"{UserDB._SQL_column_id      } SERIAL PRIMARY KEY," +
+                $"{UserDB._SQL_column_id} SERIAL PRIMARY KEY," +
                 $"{UserDB._SQL_column_username} text, " +
                 $"{UserDB._SQL_column_password} text, " +
                 $"{UserDB._SQL_column_token   } text, " +
                 $"{UserDB._SQL_column_name    } text, " +
                 $"{UserDB._SQL_column_bio     } text, " +
                 $"{UserDB._SQL_column_image   } text, " +
+                $"{UserDB._SQL_column_money   } bigint, " +
                 $"{UserDB._SQL_column_admin   } boolean " +
             ");";
 
@@ -49,15 +51,17 @@ namespace MonsterCardGame.User {
                 $"{UserDB._SQL_column_name    }, " +
                 $"{UserDB._SQL_column_bio     }, " +
                 $"{UserDB._SQL_column_image   }, " +
+                $"{UserDB._SQL_column_money   }, " +
                 $"{UserDB._SQL_column_admin   }" +
             ") VALUES (" +
-                "DEFAULT, " + 
+                "DEFAULT, " +
                 $"@{UserDB._SQL_column_username}, " +
                 $"@{UserDB._SQL_column_password}, " +
                 $"@{UserDB._SQL_column_token   }, " +
                 $"@{UserDB._SQL_column_name    }, " +
                 $"@{UserDB._SQL_column_bio     }, " +
                 $"@{UserDB._SQL_column_image   }, " +
+                $"@{UserDB._SQL_column_money   }, " +
                 $"@{UserDB._SQL_column_admin   }" +
             ");";
 
@@ -65,9 +69,13 @@ namespace MonsterCardGame.User {
 
         private static readonly string _SQL_update_info =
             $"UPDATE {UserDB._SQL_table} SET " +
-                $"{UserDB._SQL_column_name} = @{UserDB._SQL_column_name}, " +
-                $"{UserDB._SQL_column_bio} = @{UserDB._SQL_column_bio}, " +
+                $"{UserDB._SQL_column_name } = @{UserDB._SQL_column_name }, " +
+                $"{UserDB._SQL_column_bio  } = @{UserDB._SQL_column_bio  }, " +
                 $"{UserDB._SQL_column_image} = @{UserDB._SQL_column_image} " +
+            $" WHERE {UserDB._SQL_column_username} = @{UserDB._SQL_column_username};";
+        private static readonly string _SQL_update_money =
+            $"UPDATE {UserDB._SQL_table} SET " +
+                $"{UserDB._SQL_column_money} = @{UserDB._SQL_column_money}, " +
             $" WHERE {UserDB._SQL_column_username} = @{UserDB._SQL_column_username};";
 
         // constructor(s)
@@ -114,6 +122,7 @@ namespace MonsterCardGame.User {
                 UserDB._SQL_column_name,
                 UserDB._SQL_column_bio,
                 UserDB._SQL_column_image,
+                UserDB._SQL_column_money,
                 UserDB._SQL_column_admin
             };
             var values = new object[] {
@@ -123,9 +132,11 @@ namespace MonsterCardGame.User {
                 user.Info.Name,
                 user.Info.Bio,
                 user.Info.Image,
+                user.Money,
                 admin
             };
-            /*using var reader = */this.ExecSql(UserDB._SQL_insert_user, false, keys, values);
+            /*using var reader = */
+            this.ExecSql(UserDB._SQL_insert_user, false, keys, values);
 
             return true;
         }
@@ -151,6 +162,16 @@ namespace MonsterCardGame.User {
                 username
             };
             this.ExecSql(UserDB._SQL_update_info, false, keys, values);
+            return true;
+        }
+
+        public bool UpdateMoney(int money, string username) {
+            User? old = this.Get(username);
+            if (old == null) { return false; }
+
+            var keys   = new string[] { UserDB._SQL_column_money };
+            var values = new object[] { money };
+            this.ExecSql(UserDB._SQL_update_money, false, keys, values);
             return true;
         }
 
