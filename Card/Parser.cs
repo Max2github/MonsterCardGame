@@ -1,28 +1,20 @@
 ﻿using System;
 using System.Xml.Linq;
+using MonsterCardGame.Helper;
 
 namespace MonsterCardGame.Card {
     internal static class Parser {
         public static UniqueCard? Json(string json) {
-            Helper.MyJsonObject obj = new(json);
-            string id = obj.Element("Id", "");
-            string fullname = obj.Element("Name", "");
-            int? damage = obj.Element<int?>("Damage");
+            MyJsonObject obj = new(json);
+            return Parser.Json(obj);
+        }
+        public static UniqueCard? Json(MyJsonObject json) {
+            string id       = json.Element("Id", "");
+            string fullname = json.Element("Name", "");
+            double? damage     = json.Element<double?>("Damage");
             if (id == "" || fullname == "" || damage == null) { return null; }
 
-            Element_e element;
-            string name;
-
-            string water  = Parser.ElementToString(Element_e.water);
-            string fire   = Parser.ElementToString(Element_e.fire);
-            string normal = Parser.ElementToString(Element_e.normal);
-
-            if (fullname.StartsWith(water)) { element = Element_e.water; name = fullname.Remove(0, water.Length); }
-            else if (fullname.StartsWith(fire)) { element = Element_e.fire; name = fullname.Remove(0, fire.Length); }
-            else if (fullname.StartsWith(normal)) { element = Element_e.normal; name = fullname.Remove(0, normal.Length); }
-            else { return null; }
-
-            ICard? card = Parser.ICardFromName(name, element);
+            ICard? card = Parser.ICardFromFullName(fullname);
             if (card == null) { return null; }
             return new UniqueCard(card, id);
         }
@@ -35,6 +27,22 @@ namespace MonsterCardGame.Card {
             json += "\"Damage\":\"" + card.Card.Damage + "\"";
             json += "}";
             return json;
+        }
+
+        public static ICard? ICardFromFullName(string fullname) {
+            Element_e element;
+            string name;
+
+            string water = Parser.ElementToString(Element_e.water);
+            string fire = Parser.ElementToString(Element_e.fire);
+            string normal = Parser.ElementToString(Element_e.normal);
+
+            if (fullname.StartsWith(water)) { element = Element_e.water; name = fullname.Remove(0, water.Length); }
+            else if (fullname.StartsWith(fire)) { element = Element_e.fire; name = fullname.Remove(0, fire.Length); }
+            else if (fullname.StartsWith(normal)) { element = Element_e.normal; name = fullname.Remove(0, normal.Length); }
+            else { return Parser.ICardFromName(fullname, Element_e.normal); }
+
+            return Parser.ICardFromName(name, element);
         }
 
         public static ICard? ICardFromName(string name, Element_e element) {
@@ -75,7 +83,7 @@ namespace MonsterCardGame.Card {
             switch (element) {
                 case Element_e.water : return "Water";
                 case Element_e.fire  : return "Fire";
-                case Element_e.normal: return "Normal";
+                case Element_e.normal: return "Regular";
                 default: return "";
             }
         }

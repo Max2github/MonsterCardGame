@@ -12,6 +12,7 @@ using MonsterCardGame.User;
 
 string connectionString = "Host=localhost;Port=5432;Username=postgres;Password=postgres;Database=mtcgdb";
 UserDB allUsers = new UserDB(connectionString);
+CardDB allCards = new CardDB(connectionString);
 
 Admin adminUser = new Admin("admin", "admin", "Admin");
 allUsers.Add(adminUser);
@@ -30,7 +31,7 @@ Auth.UnsafeToken_Prefix = "";
 Auth.UnsafeToken_Suffix = "-mtcgToken";
 
 FileRouter fileRouter = new FileRouter("routes.json");
-ActionRouter actionRouter = new ActionRouter(allUsers, "actions.json");
+ActionRouter actionRouter = new ActionRouter(allUsers, allCards, "actions.json");
 
 Server serv = new Server(actionRouter);
 serv.Start(10001);

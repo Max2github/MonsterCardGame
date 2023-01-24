@@ -85,7 +85,7 @@ namespace MonsterCardGame.HTTP {
 		public bool Accept(Request request) {
 			// Console.WriteLine(this._flags);
 			if (this._flags == Flags.Allow_all) { return true; } // allow everyone
-			if (this._user == null) { return false; } // no one logged in -> deny
+			if (this._user is null) { return false; } // no one logged in -> deny
             if (this._flags.HasFlag(Flags.Allow_all_users)) { return true; } // allow all logged in users
 
 			// if admin is allowed -> if logging an user is an admin -> allow

@@ -15,13 +15,15 @@ namespace MonsterCardGame.HTTP.Routing {
      * */
     internal class ActionRouter : IRouter {
         private readonly User.IUserManager _userCollection;
+        private readonly Card.ICardManager _cardCollection;
         private readonly Action.Actions _ACTION;
 
-        public ActionRouter(User.IUserManager userCollection, string file = "actions.json") {
+        public ActionRouter(User.IUserManager userCollection, Card.ICardManager cardCollection, string file = "actions.json") {
             Console.Write($"Reading actions from {file}... ");
             this._ACTION = new Action.Actions(file);
             Console.WriteLine("Done.");
             this._userCollection = userCollection;
+            this._cardCollection = cardCollection;
         }
 
         public HTTP.Response HandleRequest(HTTP.Request request) {
@@ -44,7 +46,7 @@ namespace MonsterCardGame.HTTP.Routing {
             }
             // normal request
             // get command
-            Action.Command.ICommand? command = Action.Command.ICommand.CreateCommandByName(this._userCollection, toDeliver.action);
+            Action.Command.ICommand? command = Action.Command.ICommand.CreateCommandByName(this._userCollection, this._cardCollection, toDeliver.action);
             if (command == null) {
                 // something went wrong
                 return response;

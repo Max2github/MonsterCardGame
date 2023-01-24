@@ -14,8 +14,15 @@ namespace MonsterCardGame.Helper {
 		}
 		public Object Get(int index) {
 			if (index >= this.Count()) { return Arguments.invalidArg; }
+			if (index < 0) { index = this.Count() + index; }
 			return this._args[index];
         }
+		public bool Remove(int index) {
+            if (index >= this.Count()) { return false; }
+            if (index < 0) { index = this.Count() + index; }
+            this._args.RemoveAt(index);
+			return true;
+		}
 		public int Count() {
 			return this._args.Count;
 		}

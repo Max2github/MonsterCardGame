@@ -1,4 +1,5 @@
 ﻿using System;
+
 namespace MonsterCardGame.HTTP.Routing.Action {
 	internal class route : IRoute {
         internal struct actionArgId {
@@ -14,7 +15,8 @@ namespace MonsterCardGame.HTTP.Routing.Action {
         public string method;
 
         public Schema schema;
-        
+        public string dataType;
+
         public route() {
             // general info
             // requiredLogin = false;
@@ -25,6 +27,7 @@ namespace MonsterCardGame.HTTP.Routing.Action {
             // action (+ schema & args for the action)
             action = "";
             schema = new();
+            dataType = "";
             actionArgIdList = new();
         }
 

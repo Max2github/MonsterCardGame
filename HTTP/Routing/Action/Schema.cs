@@ -44,6 +44,30 @@ namespace MonsterCardGame.HTTP.Routing.Action {
                     }
                 }
             }
+            public void AddArg(Helper.MyJsonArray json, Helper.Arguments arguments) {
+                object invalid;
+                object temp = new();
+                switch (this.type) {
+                    case "string": {
+                        invalid = "";
+                        temp = json.Element(int.Parse(this.name), (string) invalid);
+                        arguments.Add(temp);
+                        break;
+                    }
+                    case "number": {
+                        invalid = -575756;
+                        temp = json.Element(int.Parse(this.name), (long) invalid);
+                        arguments.Add(temp);
+                        break;
+                    }
+                    case "bool": {
+                        invalid = false;
+                        temp = json.Element(int.Parse(this.name), (bool) invalid);
+                        arguments.Add(temp);
+                        break;
+                    }
+                }
+            }
         }
 
         public struct Enumerator : IEnumerable<schemaEl>, IEnumerable, IEnumerator<schemaEl>, IEnumerator, IDisposable {

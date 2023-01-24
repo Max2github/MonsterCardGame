@@ -26,6 +26,7 @@
     <None Remove="DB\" />
     <None Remove="Card\" />
     <None Remove="Card\Battle\" />
+    <None Remove="Card\Package\" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="HTTP\" />
@@ -39,6 +40,7 @@
     <Folder Include="DB\" />
     <Folder Include="Card\" />
     <Folder Include="Card\Battle\" />
+    <Folder Include="Card\Package\" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Moq" Version="4.18.4" />

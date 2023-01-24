@@ -56,5 +56,33 @@
     ],
     "action": [ "user_login", "s0", "s1" ],
     "auth": [ "all" ]
+  },
+
+  "\/packages": {
+    "method": "POST",
+    "schema": [],
+    "dataType": "array",
+    "action": [ "package_add", "d0" ],
+    "auth": [ "admin" ]
+  },
+
+  "\/card": {
+    "method": "POST",
+    "schema": [
+      {
+        "name": "Id",
+        "type": "string"
+      },
+      {
+        "name": "Name",
+        "type": "string"
+      },
+      {
+        "name": "Damage",
+        "type": "number"
+      }
+    ],
+    "action": [ "card_add", "s0", "s1", "s2" ],
+    "auth": [ "admin" ]
   }
 }

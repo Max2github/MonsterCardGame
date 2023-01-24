@@ -95,19 +95,26 @@ namespace MonsterCardGame.Helper {
         public T? Element<T>(string name) {
             if (typeof(T) == typeof(string)) { return (T)(object) this.Element(name, ""); }
             JsonElement temp;
-            if (typeof(T) == typeof(long)) {
+            if (typeof(T) == typeof(long) || typeof(T) == typeof(long?)) {
                 if (this._json.TryGetProperty(name, out temp)) {
                     long? erg = temp.GetInt64();
                     return (T?)(object?) erg;
                 }
                 return (T?)(object?) null;
             }
-            if (typeof(T) == typeof(int)) {
+            if (typeof(T) == typeof(int) || typeof(T) == typeof(int?)) {
                 if (this._json.TryGetProperty(name, out temp)) {
                     int? erg = temp.GetInt32();
                     return (T?)(object?)erg;
                 }
                 return (T?)(object?) null;
+            }
+            if (typeof(T) == typeof(double) || typeof(T) == typeof(double?)) {
+                if (this._json.TryGetProperty(name, out temp)) {
+                    double? erg = temp.GetDouble();
+                    return (T?)(object?)erg;
+                }
+                return (T?)(object?)null;
             }
             if (typeof(T) == typeof(bool)) { return (T)(object)this.Element(name, false); }
             return (T?)(object?) null;
@@ -138,6 +145,16 @@ namespace MonsterCardGame.Helper {
             if (el == null) { return std; }
             string? erg = el.Value.GetString();
             return (erg == null) ? std : erg;
+        }
+        public long Element(int index, long std = 0) {
+            var el = this.GetJsonElement(index);
+            if (el == null) { return std; }
+            return el.Value.GetInt64();
+        }
+        public bool Element(int index, bool std = false) {
+            var el = this.GetJsonElement(index);
+            if (el == null) { return std; }
+            return el.Value.GetBoolean();
         }
 
         public JsonElement.ArrayEnumerator Enumerate() {

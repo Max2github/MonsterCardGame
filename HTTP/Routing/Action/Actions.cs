@@ -80,6 +80,8 @@ namespace MonsterCardGame.HTTP.Routing {
                     // leave schema empty
                 }
 
+                myroute.dataType = json.Element("dataType", "object");
+
                 MyJsonArray? actionJson = json.ArrayElement("action");
                 // myroute.action = (actionJson == null) ? "" : actionJson.Element(0, "");
 
@@ -99,7 +101,9 @@ namespace MonsterCardGame.HTTP.Routing {
                                 argId.number = int.Parse(erg);
                                 // add argId to list
                                 myroute.actionArgIdList.Add(argId);
-                            } else {  }
+                            } else if (erg != null && erg.Length == 1) {
+                                // may accept single id, for z.B. data 'd'
+                            } else { }
                         }
 
                         first = false;
