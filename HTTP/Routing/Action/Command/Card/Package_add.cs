@@ -64,6 +64,7 @@ namespace MonsterCardGame.HTTP.Routing.Action.Command.Card {
                 if (!success) {
                     // package already exists
                     response.Status(Response.Status_e.CONFLICT_409);
+                    return false;
                 }
 
                 response.Status(Response.Status_e.CREATED_201);
