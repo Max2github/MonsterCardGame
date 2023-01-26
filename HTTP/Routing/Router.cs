@@ -14,23 +14,14 @@ namespace MonsterCardGame.HTTP.Routing {
      * The shema of incoming data and the action to take should be described in actions.json.
      * */
     internal class ActionRouter : IRouter {
-        private readonly User.IUserManager _userCollection;
-        private readonly Card.ICardManager _cardCollection;
-        private readonly Card.Package.IPackageManager _packageManager;
+        private SemiGlobal _glob;
         private readonly Action.Actions _ACTION;
 
-        public ActionRouter(
-            User.IUserManager userCollection,
-            Card.ICardManager cardCollection,
-            Card.Package.IPackageManager packageManager,
-            string file = "actions.json"
-        ) {
+        public ActionRouter(SemiGlobal glob, string file = "actions.json") {
             Console.Write($"Reading actions from {file}... ");
             this._ACTION = new Action.Actions(file);
             Console.WriteLine("Done.");
-            this._userCollection = userCollection;
-            this._cardCollection = cardCollection;
-            this._packageManager = packageManager;
+            this._glob = glob;
         }
 
         public HTTP.Response HandleRequest(HTTP.Request request) {
@@ -54,7 +45,7 @@ namespace MonsterCardGame.HTTP.Routing {
             // normal request
 
             // check auth
-            User.User? currentUser = Auth.GetUser(this._userCollection, request);
+            User.User? currentUser = Auth.GetUser(this._glob.userManager, request);
             toDeliver.auth.SetUser(currentUser);
             if (!toDeliver.auth.Accept(request)) {
                 // if a user is logged in, but cannot access this (e.g. not an admin)
@@ -67,7 +58,7 @@ namespace MonsterCardGame.HTTP.Routing {
             }
 
             // get command
-            Action.Command.ICommand? command = Action.Command.ICommand.CreateCommandByName(currentUser, this._userCollection, this._cardCollection, this._packageManager, toDeliver.action);
+            Action.Command.ICommand? command = Action.Command.ICommand.CreateCommandByName(currentUser, this._glob, toDeliver.action);
             if (command == null) {
                 // something went wrong - on config error (in actions.json); command not implemented (yet)
                 response.Status(Response.Status_e.NOT_IMPLEMENTED_501);

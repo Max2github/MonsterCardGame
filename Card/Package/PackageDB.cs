@@ -35,8 +35,13 @@ namespace MonsterCardGame.Card.Package {
             $"SELECT * FROM {PackageDB._SQL_table} WHERE {PackageDB._SQL_column_username} IS NULL LIMIT 1;";
         private static readonly string _SQL_get =
             $"SELECT * FROM {PackageDB._SQL_table} WHERE {PackageDB._SQL_column_username} = @{PackageDB._SQL_column_username};";
+        private static readonly string _SQL_get_owner =
+            $"SELECT * FROM {PackageDB._SQL_table} WHERE {PackageDB._SQL_column_packageId} = @{PackageDB._SQL_column_packageId};";
+        // table match
         private static readonly string _SQL_get_cards =
             $"SELECT * FROM {PackageDB._SQL_table_match} WHERE {PackageDB._SQL_column_packageId} = @{PackageDB._SQL_column_packageId};";
+        private static readonly string _SQL_get_byCard =
+            $"SELECT * FROM {PackageDB._SQL_table_match} WHERE {CardDB._SQL_column_id} = @{CardDB._SQL_column_id};";
 
         // insert
 
@@ -110,6 +115,30 @@ namespace MonsterCardGame.Card.Package {
         public Package? Get(string? username = null) {
             return this.GetWithID(username)?.package;
 		}
+
+        public string GetOwner(int id) {
+            var keys   = new string[] { PackageDB._SQL_column_packageId };
+            var values = new object[] { id };
+            using var info = this.ExecSql(PackageDB._SQL_get_owner, true, keys, values);
+            if (info is null) { return ""; }
+            if (info.reader.Read()) {
+                if(info.reader.IsDBNull(PackageDB._SQL_column_username)) { return ""; }
+                return info.reader.GetString(PackageDB._SQL_column_username);
+            }
+            return "";
+        }
+
+        public int? GetIdByCard(UniqueCard card) {
+            var keys = new string[] { CardDB._SQL_column_id };
+            var values = new object[] { card.Guid };
+            using var info = this.ExecSql(PackageDB._SQL_get_byCard, true, keys, values);
+            if (info is null) { return null; }
+            if (info.reader.Read()) {
+                if (info.reader.IsDBNull(PackageDB._SQL_column_username)) { return null; }
+                return info.reader.GetInt32(PackageDB._SQL_column_packageId);
+            }
+            return null;
+        }
 
         public bool Add(Package package) {
             if (!package.IsValid()) { return false; }

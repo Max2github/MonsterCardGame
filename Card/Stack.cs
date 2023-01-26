@@ -4,14 +4,22 @@ namespace MonsterCardGame.Card {
         private readonly List<ICard> _cards = new();
 
         public Stack() { }
+        public Stack(Deck.Deck deck) {
+            UniqueCard card = deck.Next();
+            while (card.IsValid()) {
+                this.Push(card.Card!);
+                card = deck.Next();
+            }
+        }
 
         public int Count() {
             return this._cards.Count;
         }
+
         public void Push(ICard card) {
             this._cards.Add(card);
-            
         }
+
         public ICard? Get(int index = -1) {
             int len = this._cards.Count;
             if (len == 0) { return null; }
@@ -24,6 +32,15 @@ namespace MonsterCardGame.Card {
             if (index >= len) { return null; }
             return this._cards[index];
         }
+        public int RandomIndex() {
+            var rand = new Random();
+            return rand.Next() % this.Count();
+        }
+        public ICard? Random() {
+            return this.Get(this.RandomIndex())!;
+        }
+
+
         public ICard? Pop(int index = -1) {
             int len = this._cards.Count;
             if (len == 0) { return null; }

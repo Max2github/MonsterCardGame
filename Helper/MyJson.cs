@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Reflection;
 using System.Text.Json;
 
 namespace MonsterCardGame.Helper {
@@ -138,6 +139,14 @@ namespace MonsterCardGame.Helper {
                 i++;
             }
             return null;
+        }
+
+        public int Count() {
+            int i = 0;
+            foreach (var element in this._json.EnumerateArray()) {
+                i++;
+            }
+            return i;
         }
 
         public string Element(int index, string std = "") {

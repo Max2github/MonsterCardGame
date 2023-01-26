@@ -87,6 +87,32 @@ namespace MonsterCardGame.Card {
                 default: return "";
             }
         }
+
+        public static string Json(Deck.Deck deck) {
+            string json = "[";
+
+            UniqueCard card = deck.Next();
+            while (true) {
+                json += Parser.Json(card);
+
+                card = deck.Next();
+                if (!card.IsValid()) {
+                    break;
+                } else {
+                    json += ", ";
+                }
+            }
+
+            json += "]";
+            return json;
+        } 
+
+        internal static string GetOwner(Package.IPackageManager packageManager, UniqueCard card) {
+            int? id = packageManager.GetIdByCard(card);
+            if (id == null) { return ""; } // package does not exist
+            int idHelp = Convert.ToInt32(id);
+            return packageManager.GetOwner(idHelp);
+        }
 	}
 }
 

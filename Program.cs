@@ -6,6 +6,8 @@ using MonsterCardGame.HTTP.Routing;
 using MonsterCardGame.User;
 using MonsterCardGame.Card;
 using MonsterCardGame.Card.Package;
+using MonsterCardGame.Card.Deck;
+using MonsterCardGame.Card.Battle;
 
 // See https://aka.ms/new-console-template for more information
 
@@ -15,11 +17,16 @@ string connectionString = "Host=localhost;Port=5432;Username=postgres;Password=p
 IUserManager allUsers = new UserDB(connectionString);
 ICardManager allCards = new CardDB(connectionString);
 IPackageManager allPackages = new PackageDB(allCards, connectionString);
+IDeckManager allDecks = new DeckDB(allPackages, allCards, connectionString);
 
 Admin adminUser = new Admin("admin", "istrator", "Administrator");
 allUsers.Add(adminUser);
 
 Console.WriteLine(allUsers.Count());
+
+Lobby battleLobby = new(allDecks);
+
+SemiGlobal glob = new(allUsers, allCards, allPackages, allDecks, battleLobby);
 
 /**
  * Allow authentification with tokens with the following form:
@@ -33,7 +40,7 @@ Auth.UnsafeToken_Prefix = "";
 Auth.UnsafeToken_Suffix = "-mtcgToken";
 
 IRouter fileRouter = new FileRouter("routes.json");
-IRouter actionRouter = new ActionRouter(allUsers, allCards, allPackages, "actions.json");
+IRouter actionRouter = new ActionRouter(glob, "actions.json");
 
 Server serv = new Server(actionRouter);
 serv.Start(10001);

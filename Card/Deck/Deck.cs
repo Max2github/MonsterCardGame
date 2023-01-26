@@ -1,10 +1,13 @@
 ﻿using System;
 namespace MonsterCardGame.Card.Deck {
-	internal class Deck : Helper.IValid {
-		public UniqueCard Card1 { get; }
-        public UniqueCard Card2 { get; }
-        public UniqueCard Card3 { get; }
-        public UniqueCard Card4 { get; }
+	public class Deck : Helper.IValid {
+		public UniqueCard Card1 { private set; get; }
+        public UniqueCard Card2 { private set; get; }
+        public UniqueCard Card3 { private set; get; }
+        public UniqueCard Card4 { private set; get; }
+
+        private ushort _counter_get = 1;
+        private ushort _counter_set = 1;
 
         public Deck() {
             this.Card1 = new UniqueCard();
@@ -33,9 +36,42 @@ namespace MonsterCardGame.Card.Deck {
             throw new IndexOutOfRangeException();
         }
 
+        public UniqueCard Next() {
+            UniqueCard card;
+            this._counter_get = (ushort)(this._counter_get % 4 + 1);
+            switch (this._counter_get) {
+                case 1: { card = this.Card1; break; }
+                case 2: { card = this.Card2; break; }
+                case 3: { card = this.Card3; break; }
+                case 4: { card = this.Card4; break; }
+                default: {
+                    // counter error, should / can never happen
+                    throw new Exception("internal error with counter in Card.Battle.Deck");
+                }
+            }
+            this._counter_get++;
+            return card;
+        }
+
+        public void Next(UniqueCard card) {
+            switch (this._counter_set) {
+                case 1: { this.Card1 = card; break; }
+                case 2: { this.Card2 = card; break; }
+                case 3: { this.Card3 = card; break; }
+                case 4: { this.Card4 = card; break; }
+                default: {
+                    // counter error, should / can never happen
+                    throw new Exception("internal error with counter in Card.Battle.Deck");
+                }
+            }
+            this._counter_set++;
+        }
+
         public bool IsValid() {
             return (Card1.IsValid() && Card2.IsValid() && Card3.IsValid() && Card4.IsValid());
         }
+
+        // private
 	}
 }
 

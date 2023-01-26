@@ -73,6 +73,27 @@
     "auth": [ "own", "admin" ]
   },
 
+  "\/deck": {
+    "method": "GET",
+    "schema": [],
+    "action": [ "deck_get" ],
+    "auth": [ "own" ]
+  },
+
+  "\/deck": {
+    "method": "PUT",
+    "schema": [],
+    "action": [ "deck_set", "d0" ],
+    "auth": [ "own" ]
+  },
+
+  "\/battles": {
+    "method": "POST",
+    "schema": [],
+    "action": [ "battle" ],
+    "auth": [ "own" ]
+  },
+
   "\/card": {
     "method": "POST",
     "schema": [
@@ -92,4 +113,5 @@
     "action": [ "card_add", "s0", "s1", "s2" ],
     "auth": [ "admin" ]
   }
+
 }
