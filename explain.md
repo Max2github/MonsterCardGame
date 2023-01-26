@@ -89,3 +89,6 @@ I chose the classes for the unit test based on the following criteria:
 Anyway the unit test do not work on my computer, because Visual Studio on MacOS does not support them and on my virtual Maschine with Windows I get a timeout problem, which tells me that my PC is too slow (Visual Studio in the VM with C# is already slow, so it does not surprise me).
 
 Thus I could neither use or test the unit tests :)
+
+## link to git
+https://github.com/Max2github/MonsterCardGame
