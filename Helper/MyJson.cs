@@ -5,7 +5,7 @@ namespace MonsterCardGame.Helper {
     /**
      * Cannot be used from outside
      * */
-    internal class MyJson {
+    public class MyJson {
         protected JsonValueKind _type;
         protected JsonElement _json;
 
@@ -33,7 +33,7 @@ namespace MonsterCardGame.Helper {
     /**
      * Only used for json objects
      * */
-    internal class MyJsonObject : MyJson {
+    public class MyJsonObject : MyJson {
         public MyJsonObject(string jsonStr) : base(jsonStr) {
 
         }
@@ -123,7 +123,7 @@ namespace MonsterCardGame.Helper {
     /**
      * Only used for json arrays
      * */
-    internal class MyJsonArray : MyJson {
+    public class MyJsonArray : MyJson {
         public MyJsonArray(string jsonStr) : base(jsonStr) {
 
         }

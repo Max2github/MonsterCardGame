@@ -1,6 +1,6 @@
 ﻿using System;
 namespace MonsterCardGame.Card {
-    internal enum Type_e {
+    public enum Type_e {
         // monsters / creatures
         monster_goblin,
         monster_wizard,
@@ -13,14 +13,14 @@ namespace MonsterCardGame.Card {
         // spells
         spell,
     }
-    internal enum Element_e {
+    public enum Element_e {
         water,
         fire,
         normal
     }
 
     // interface for using the card
-    internal interface ICard {
+    public interface ICard {
         string Name { get; } // changed per class
         ushort Damage   { get; set; } // changed individually - may change it to fighting power / strenght
         // ushort Life     { get; } // changed individually - may (have to) abolish this
@@ -30,7 +30,7 @@ namespace MonsterCardGame.Card {
         int AttackPower(ICard against);
     }
     // abstract class only used for DRY (Don't Repeat Yourself)
-    internal abstract class AbstrCard {
+    public abstract class AbstrCard {
         public ushort Damage { get; set; } = 10;    // dummy default
         // public ushort Life { get; protected set; } = 10;    // dummy default
         public Element_e Element { get; protected set; } = Element_e.normal; // dummy default
@@ -39,6 +39,26 @@ namespace MonsterCardGame.Card {
             this.Element = element;
         }
 
+        protected virtual int ElementalDmg(ICard against) {
+            var damage = this.Damage;
+            // effective
+            if (
+                (this.Element == Element_e.water  && against.Element == Element_e.fire  ) ||
+                (this.Element == Element_e.fire   && against.Element == Element_e.normal) ||
+                (this.Element == Element_e.normal && against.Element == Element_e.water )
+            ) {
+                damage *= 2;
+            }
+            // not effective
+            if (
+                (this.Element == Element_e.fire   && against.Element == Element_e.water ) ||
+                (this.Element == Element_e.normal && against.Element == Element_e.fire  ) ||
+                (this.Element == Element_e.water  && against.Element == Element_e.normal)
+            ) {
+                damage /= 2;
+            }
+            return damage;
+        }
         
         public static bool operator ==(AbstrCard a, AbstrCard b) => (
             a.Damage == b.Damage   &&
@@ -70,7 +90,7 @@ namespace MonsterCardGame.Card {
     }
 
     // for now use a class for each type
-    internal class Goblin : AbstrCard, ICard {
+    public class Goblin : AbstrCard, ICard {
         public string Name   { get; private set; } = "Goblin";
         public Type_e Type { get; private set; } = Type_e.monster_goblin;
 
@@ -78,20 +98,22 @@ namespace MonsterCardGame.Card {
 
         public int AttackPower(ICard against) {
             if (against.Type == Type_e.monster_dragon) { return 0; }
+            if (against is Spell) { return this.ElementalDmg(against); }
             return this.Damage;
         }
     }
-    internal class Wizard : AbstrCard, ICard {
+    public class Wizard : AbstrCard, ICard {
         public string Name { get; private set; } = "Wizard";
         public Type_e Type { get; private set; } = Type_e.monster_wizard;
 
         public Wizard(Element_e element) : base(element) { }
 
         public int AttackPower(ICard against) {
+            if (against is Spell) { return this.ElementalDmg(against); }
             return this.Damage;
         }
     }
-    internal class Knight : AbstrCard, ICard {
+    public class Knight : AbstrCard, ICard {
         public string Name { get; private set; } = "Knight";
         public Type_e Type { get; private set; } = Type_e.monster_knight;
 
@@ -99,10 +121,11 @@ namespace MonsterCardGame.Card {
 
         public int AttackPower(ICard against) {
             if (against.Type == Type_e.spell && against.Element == Element_e.water) { return 0; }
+            if (against is Spell) { return this.ElementalDmg(against); }
             return this.Damage;
         }
     }
-    internal class Kraken : AbstrCard, ICard {
+    public class Kraken : AbstrCard, ICard {
         public string Name { get; private set; } = "Kraken";
         public Type_e Type { get; private set; } = Type_e.monster_kraken;
 
@@ -110,10 +133,11 @@ namespace MonsterCardGame.Card {
 
         public int AttackPower(ICard against) {
             // immune to spells
+            if (against is Spell) { return this.ElementalDmg(against); }
             return this.Damage;
         }
     }
-    internal class Ork : AbstrCard, ICard {
+    public class Ork : AbstrCard, ICard {
         public string Name { get; private set; } = "Ork";
         public Type_e Type { get; private set; } = Type_e.monster_ork;
 
@@ -122,20 +146,22 @@ namespace MonsterCardGame.Card {
         public int AttackPower(ICard against) {
             // cannot deal damage to wizard, because wizards can control Orks
             if (against.Type == Type_e.monster_wizard) { return 0; }
+            if (against is Spell) { return this.ElementalDmg(against); }
             return this.Damage;
         }
     }
-    internal class Elf : AbstrCard, ICard {
+    public class Elf : AbstrCard, ICard {
         public string Name { get; private set; } = "Elf";
         public Type_e Type { get; private set; } = Type_e.monster_elf;
 
         public Elf(Element_e element) : base(element) { }
 
         public int AttackPower(ICard against) {
+            if (against is Spell) { return this.ElementalDmg(against); }
             return this.Damage;
         }
     }
-    internal class Dragon : AbstrCard, ICard {
+    public class Dragon : AbstrCard, ICard {
         public string Name { get; private set; } = "Dragon";
         public Type_e Type { get; private set; } = Type_e.monster_dragon;
 
@@ -144,11 +170,12 @@ namespace MonsterCardGame.Card {
         public int AttackPower(ICard against) {
             // Fireelves can evade the dragons attack
             if (against.Element == Element_e.fire && against.Type == Type_e.monster_elf) { return 0; }
+            if (against is Spell) { return this.ElementalDmg(against); }
             return this.Damage;
         }
     }
 
-    internal class Spell : AbstrCard, ICard {
+    public class Spell : AbstrCard, ICard {
         public string Name { get; private set; } = "Spell";
         public Type_e Type { get; private set; } = Type_e.monster_dragon;
 
@@ -158,24 +185,7 @@ namespace MonsterCardGame.Card {
             // Kraken are immune to spells
             if (against.Type == Type_e.monster_kraken) { return 0; }
             // element effective?
-            var damage = this.Damage;
-            // effective
-            if (
-                (this.Element == Element_e.water  && against.Element == Element_e.fire  ) ||
-                (this.Element == Element_e.fire   && against.Element == Element_e.normal) ||
-                (this.Element == Element_e.normal && against.Element == Element_e.water )
-            ) {
-                damage *= 2;
-            }
-            // not effective
-            if (
-                (this.Element == Element_e.fire   && against.Element == Element_e.water ) ||
-                (this.Element == Element_e.normal && against.Element == Element_e.fire  ) ||
-                (this.Element == Element_e.water  && against.Element == Element_e.normal)
-            ) {
-                damage /= 2;
-            }
-            return damage;
+            return this.ElementalDmg(against);
         }
     }
 }

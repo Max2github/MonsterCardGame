@@ -3,7 +3,7 @@ using System.Xml.Linq;
 using MonsterCardGame.Helper;
 
 namespace MonsterCardGame.Card {
-    internal static class Parser {
+    public static class Parser {
         public static UniqueCard? Json(string json) {
             MyJsonObject obj = new(json);
             return Parser.Json(obj);

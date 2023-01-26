@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 namespace MonsterCardGame {
     namespace HTTP {
         // an abstract class for both HTTP requests and responses
-        internal abstract class Header {
+        public abstract class Header {
             public String[] Headers;
 
             protected abstract string GetFirstLine();
@@ -51,7 +51,7 @@ namespace MonsterCardGame {
         }
 
         // parse a HTTP request
-        internal class Request : Header {
+        public class Request : Header {
             // private attributes
             public byte[]? Data { get; }
 
@@ -109,7 +109,7 @@ namespace MonsterCardGame {
         }
 
         // create a HTTP response
-        internal class Response : Header {
+        public class Response : Header {
             public enum Status_e {
                 OK_200 = 200,
                 CREATED_201 = 201,

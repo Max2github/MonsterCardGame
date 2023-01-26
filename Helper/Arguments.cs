@@ -5,7 +5,7 @@ namespace MonsterCardGame.Helper {
 	 * This list must contain be filled correctly,
 	 * or you probably have ugly errors.
 	 * */
-	internal class Arguments {
+	public class Arguments {
         private readonly List<object> _args = new List<object>();
 		static public object invalidArg = new();
 

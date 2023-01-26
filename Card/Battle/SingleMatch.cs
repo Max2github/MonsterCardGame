@@ -1,6 +1,6 @@
 ﻿using System;
 namespace MonsterCardGame.Card.Battle {
-	internal class SingleMatch {
+	public class SingleMatch {
 		private ICard _one;
         private ICard _two;
 

@@ -1,7 +1,7 @@
 ﻿using System;
 
 namespace MonsterCardGame.Card {
-    internal class UniqueCard : IEquatable<UniqueCard>, Helper.IValid {
+    public class UniqueCard : IEquatable<UniqueCard>, Helper.IValid {
         public Guid Guid { get; }
         public ICard? Card { get; }
 
