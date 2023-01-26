@@ -60,10 +60,10 @@ namespace MonsterCardGame.Card {
             var keys = new string[] { CardDB._SQL_column_id };
             var values = new object[] { guid };
 
-            using var reader = this.ExecSql(CardDB._SQL_get, true, keys, values);
-            if (reader == null) { return null; } // would be an internal server error, never happens
-            if (reader.Read()) {
-                return CardDB.ReadCard(reader);
+            using var info = this.ExecSql(CardDB._SQL_get, true, keys, values);
+            if (info == null) { return null; } // would be an internal server error, never happens
+            if (info.reader.Read()) {
+                return CardDB.ReadCard(info.reader);
             }
             return null;
         }

@@ -17,6 +17,22 @@ namespace MonsterCardGame.DB {
 
         // public
 
+        public class ReaderAndConnection : IDisposable {
+            public readonly NpgsqlDataReader reader;
+            public readonly NpgsqlConnection connection;
+
+            public ReaderAndConnection(NpgsqlConnection c, NpgsqlDataReader r) {
+                this.reader = r;
+                this.connection = c;
+            }
+
+            public void Dispose() {
+                this.reader.Dispose();
+                this.connection.Dispose();
+                GC.SuppressFinalize(this);
+            }
+        }
+
         public int Count(string table) {
             using var reader = this.GetAll(table);
             int i = 0;
@@ -38,11 +54,11 @@ namespace MonsterCardGame.DB {
             });
         }
 
-        protected NpgsqlDataReader? ExecSql(string sqlStatement, bool expectAnswer = true, string[]? keys = null, object[]? values = null) {
+        protected ReaderAndConnection? ExecSql(string sqlStatement, bool expectAnswer = true, string[]? keys = null, object[]? values = null) {
             if (keys != null && values != null && keys.Length != values.Length) {
                 return null;
             }
-            return ExecuteWithDbConnection((connection) => {
+            return this.ExecuteWithDbConnection((connection) => {
                 using var cmd = new NpgsqlCommand(sqlStatement, connection);
 
                 if (keys != null && values != null) {
@@ -57,11 +73,32 @@ namespace MonsterCardGame.DB {
                     } catch (Exception e) {
                         Console.WriteLine(e.Message);
                     }
+                    connection.Close();
                     return null;
                 }
                 
                 NpgsqlDataReader reader = cmd.ExecuteReader();
-                return reader;
+                return new ReaderAndConnection(connection, reader);
+            });
+        }
+
+        public object? ExecSqlScalar(string sqlStatement, string[]? keys = null, object[]? values = null) {
+            if (keys != null && values != null && keys.Length != values.Length) {
+                return null;
+            }
+            
+            return ExecuteWithDbConnection((connection) => {
+                using var cmd = new NpgsqlCommand(sqlStatement, connection);
+
+                if (keys != null && values != null) {
+                    for (int i = 0; i < values.Length; i++) {
+                        cmd.Parameters.AddWithValue(keys[i], values[i]);
+                    }
+                }
+
+                var ret = cmd.ExecuteScalar();
+                connection.Close(); // we need to close it, or we get an exception "too many clients"
+                return ret;
             });
         }
 
@@ -84,7 +121,7 @@ namespace MonsterCardGame.DB {
                 var connection = this.Connect();
 
                 return command(connection);
-            } catch (NpgsqlException) {
+            } catch (NpgsqlException /*e*/) {
                 throw;
                 // throw new DataAccessFailedException("Could not connect to database", e);
             }

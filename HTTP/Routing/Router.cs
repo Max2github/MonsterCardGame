@@ -16,14 +16,21 @@ namespace MonsterCardGame.HTTP.Routing {
     internal class ActionRouter : IRouter {
         private readonly User.IUserManager _userCollection;
         private readonly Card.ICardManager _cardCollection;
+        private readonly Card.Package.IPackageManager _packageManager;
         private readonly Action.Actions _ACTION;
 
-        public ActionRouter(User.IUserManager userCollection, Card.ICardManager cardCollection, string file = "actions.json") {
+        public ActionRouter(
+            User.IUserManager userCollection,
+            Card.ICardManager cardCollection,
+            Card.Package.IPackageManager packageManager,
+            string file = "actions.json"
+        ) {
             Console.Write($"Reading actions from {file}... ");
             this._ACTION = new Action.Actions(file);
             Console.WriteLine("Done.");
             this._userCollection = userCollection;
             this._cardCollection = cardCollection;
+            this._packageManager = packageManager;
         }
 
         public HTTP.Response HandleRequest(HTTP.Request request) {
@@ -46,9 +53,10 @@ namespace MonsterCardGame.HTTP.Routing {
             }
             // normal request
             // get command
-            Action.Command.ICommand? command = Action.Command.ICommand.CreateCommandByName(this._userCollection, this._cardCollection, toDeliver.action);
+            Action.Command.ICommand? command = Action.Command.ICommand.CreateCommandByName(this._userCollection, this._cardCollection, this._packageManager, toDeliver.action);
             if (command == null) {
-                // something went wrong
+                // something went wrong - on config error (in actions.json); command not implemented (yet)
+                response.Status(Response.Status_e.NOT_IMPLEMENTED_501);
                 return response;
             }
 

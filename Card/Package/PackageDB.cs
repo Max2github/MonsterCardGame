@@ -1,53 +1,50 @@
 ﻿using System;
 using System.Data;
+using Npgsql;
 
 namespace MonsterCardGame.Card.Package {
-	internal class PackageDB : DB.Database, IPackageManager {
-		private static readonly string _SQL_table = "packages";
+    internal class PackageDB : DB.Database, IPackageManager {
+        private static readonly string _SQL_table = "packages";
+        private static readonly string _SQL_table_match = "match_packages_cards";
 
         // columns
 
         private static readonly string _SQL_column_packageId = "packageid";
-        private static readonly string _SQL_column_cardId1 = "cardid1";
-        private static readonly string _SQL_column_cardId2 = "cardid2";
-        private static readonly string _SQL_column_cardId3 = "cardid3";
-        private static readonly string _SQL_column_cardId4 = "cardid4";
 
         // create table
 
         private static readonly string _SQL_create_table =
             $"CREATE TABLE IF NOT EXISTS {PackageDB._SQL_table} (" +
-                $"{PackageDB._SQL_column_packageId} SERIAL PRIMARY KEY," +
-                $"{PackageDB._SQL_column_cardId1} uuid, " +
-                $"{PackageDB._SQL_column_cardId2} uuid, " +
-                $"{PackageDB._SQL_column_cardId3} uuid, " +
-                $"{PackageDB._SQL_column_cardId4} uuid, " +
-                $"FOREIGN KEY({PackageDB._SQL_column_cardId1}) REFERENCES {CardDB._SQL_table}({CardDB._SQL_column_id}) , " +
-                $"FOREIGN KEY({PackageDB._SQL_column_cardId2}) REFERENCES {CardDB._SQL_table}({CardDB._SQL_column_id}) , " +
-                $"FOREIGN KEY({PackageDB._SQL_column_cardId3}) REFERENCES {CardDB._SQL_table}({CardDB._SQL_column_id}) , " +
-                $"FOREIGN KEY({PackageDB._SQL_column_cardId4}) REFERENCES {CardDB._SQL_table}({CardDB._SQL_column_id}) , " +
+                $"{PackageDB._SQL_column_packageId} SERIAL PRIMARY KEY " +
+            ");";
+        private static readonly string _SQL_create_table_match =
+            $"CREATE TABLE IF NOT EXISTS {PackageDB._SQL_table} (" +
+                $"{PackageDB._SQL_column_packageId} bigint, " +
+                $"{CardDB._SQL_column_id} bigint " +
             ");";
 
         // get
 
         // we just want any package, so we will just use the first
         private static readonly string _SQL_get = $"SELECT * FROM {PackageDB._SQL_table} LIMIT 1;";
+        private static readonly string _SQL_get_cards =
+            $"SELECT * FROM {PackageDB._SQL_table_match} WHERE {PackageDB._SQL_column_packageId} = @{PackageDB._SQL_column_packageId};";
 
         // insert
 
         private static readonly string _SQL_insert =
             $"INSERT INTO {PackageDB._SQL_table} (" +
-                $"{PackageDB._SQL_column_packageId}, " +
-                $"{PackageDB._SQL_column_cardId1}, " +
-                $"{PackageDB._SQL_column_cardId2}, " +
-                $"{PackageDB._SQL_column_cardId3}, " +
-                $"{PackageDB._SQL_column_cardId4}" +
+                $"{PackageDB._SQL_column_packageId} " +
             ") VALUES (" +
-                $"DEFAULT, " +
-                $"@{PackageDB._SQL_column_cardId1}, " +
-                $"@{PackageDB._SQL_column_cardId2}, " +
-                $"@{PackageDB._SQL_column_cardId3}, " +
-                $"@{PackageDB._SQL_column_cardId4}" +
+                $"DEFAULT " +
+            $") RETURNING {PackageDB._SQL_column_packageId};";
+        private static readonly string _SQL_insert_match =
+            $"INSERT INTO {PackageDB._SQL_table_match} (" +
+                $"{PackageDB._SQL_column_packageId} " +
+                $"{CardDB._SQL_column_id} " +
+            ") VALUES (" +
+                $"{PackageDB._SQL_column_packageId} " +
+                $"{CardDB._SQL_column_id} " +
             ");";
 
         // remove
@@ -69,57 +66,71 @@ namespace MonsterCardGame.Card.Package {
 
         public PackageDB(ICardManager cardDB, string connectionString) : base(connectionString) {
             this._cardDB = cardDB;
+            this.ExecSql(PackageDB._SQL_create_table, false);
+            this.ExecSql(PackageDB._SQL_create_table_match, false);
         }
 
-		// public functions
+        // public functions
 
-		public int Count() { return this.Count(PackageDB._SQL_table); }
+        public int Count() { return this.Count(PackageDB._SQL_table); }
 
         public PackageWithID? GetWithID() {
-            using var reader = this.ExecSql(PackageDB._SQL_get);
-            if (reader == null) { return null; }
-            Package? package = null;
-            int id = 0;
-            if (reader.Read()) {
-                id = reader.GetInt32(PackageDB._SQL_column_packageId);
-                package = this.ReadPackage(reader);
-            } else {
-                return null;
-            }
-            PackageWithID pack = new();
-            pack.package = package;
-            pack.id = id;
+            int? id = this.GetId();
+            if (id == null) { return null; }
+            int idHelp = Convert.ToInt32(id); // cannot convert normally from int? to int
+
+            Package? package = this.GetPackage(idHelp);
+            if (package == null) { return null; }
+
+            PackageWithID pack = new() {
+                package = package,
+                id = idHelp
+            };
             return pack;
         }
 
         public Package? Get() {
-            using var reader = this.ExecSql(PackageDB._SQL_get);
-            if (reader == null) { return null; }
-            if (reader.Read()) {
-                return this.ReadPackage(reader);
-            }
-			return null;
+            return this.GetWithID()?.package;
 		}
 
         public bool Add(Package package) {
             if (!package.IsValid()) { return false; }
 
-            var keys = new string[] {
-                PackageDB._SQL_column_cardId1,
-                PackageDB._SQL_column_cardId2,
-                PackageDB._SQL_column_cardId3,
-                PackageDB._SQL_column_cardId4
-            };
-            var values = new object[] {
-                package.Card1.Guid,
-                package.Card2.Guid,
-                package.Card3.Guid,
-                package.Card4.Guid
-            };
-            this.ExecSql(PackageDB._SQL_insert, false, keys, values);
+            // this.ExecSql(PackageDB._SQL_insert, false);
+            object? result = this.ExecSqlScalar(PackageDB._SQL_insert);
+            int id = Convert.ToInt32(result);
 
-			return true;
-		}
+            var keys = new string[] {
+                PackageDB._SQL_column_packageId,
+                CardDB._SQL_column_id
+            };
+
+            // check if card already exists -> package already exists -> fail: conflict
+            for (int i = 0; i < package.Count(); i++) {
+                UniqueCard? card = package.Get(i);
+                if (card is null || !card.IsValid()) { /* some error - should never happen */ return false; }
+
+                UniqueCard? already = this._cardDB.Get(card.Guid);
+                if (already is not null) {
+                    return false;
+                }
+            }
+
+            // insert into cards + packages + match table
+            for (int i = 0; i < package.Count(); i++) {
+                UniqueCard? card = package.Get(i);
+
+                this._cardDB.Add(card!);
+
+                var values = new object[] {
+                    id,
+                    card!.Guid
+                };
+                this.ExecSql(PackageDB._SQL_insert_match, false, keys, values);
+            }
+
+            return true;
+        }
 
         public bool Remove(int id) {
             var keys = new string[] { PackageDB._SQL_column_packageId };
@@ -129,7 +140,7 @@ namespace MonsterCardGame.Card.Package {
         }
 
         /**
-         * Get and Remove a package
+         * Get and Remove a deck
          * */
         public Package? Pop() {
             PackageWithID? pack = this.GetWithID();
@@ -140,21 +151,28 @@ namespace MonsterCardGame.Card.Package {
 
         // private functions
 
-        private Package ReadPackage(Npgsql.NpgsqlDataReader readingReader) {
-            Guid cardId1 = readingReader.GetGuid(PackageDB._SQL_column_cardId1);
-            Guid cardId2 = readingReader.GetGuid(PackageDB._SQL_column_cardId2);
-            Guid cardId3 = readingReader.GetGuid(PackageDB._SQL_column_cardId3);
-            Guid cardId4 = readingReader.GetGuid(PackageDB._SQL_column_cardId4);
-            UniqueCard? card1 = this._cardDB.Get(cardId1);
-            UniqueCard? card2 = this._cardDB.Get(cardId2);
-            UniqueCard? card3 = this._cardDB.Get(cardId3);
-            UniqueCard? card4 = this._cardDB.Get(cardId4);
-
-            if (card1 is null || card2 is null || card3 is null || card4 is null) {
-                return new Package(); // invalid
-            }
-            return new Package(card1, card2, card3, card4);
+        private int? GetId() {
+            using var info = this.ExecSql(PackageDB._SQL_get);
+            if (info == null) { return null; }
+            return info.reader.GetInt32(PackageDB._SQL_column_packageId);
         }
-	}
+
+        private Package? GetPackage(int id) {
+            var keys = new string[] { PackageDB._SQL_column_packageId };
+            var values = new object[] { id };
+            using var info = this.ExecSql(PackageDB._SQL_get_cards, true, keys, values);
+            if (info == null) { return null; }
+
+            Package package = new(); // still invalid
+
+            while (info.reader.Read()) {
+                Guid cardId = info.reader.GetGuid(CardDB._SQL_column_id);
+                UniqueCard? card = this._cardDB.Get(cardId);
+                if (card is null) { /* some error - can / should never happen */ }
+                /* bool success =*/ package.Add(card!);
+            }
+            return package;
+        }
+    }
 }
 

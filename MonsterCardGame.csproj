@@ -27,6 +27,7 @@
     <None Remove="Card\" />
     <None Remove="Card\Battle\" />
     <None Remove="Card\Package\" />
+    <None Remove="Card\Deck\" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="HTTP\" />
@@ -41,6 +42,7 @@
     <Folder Include="Card\" />
     <Folder Include="Card\Battle\" />
     <Folder Include="Card\Package\" />
+    <Folder Include="Card\Deck\" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Moq" Version="4.18.4" />

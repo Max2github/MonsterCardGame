@@ -178,10 +178,10 @@ namespace MonsterCardGame.User {
         // private functions
 
         private User? GetUser(string sqlStr, string[]? keys, object[]? values) {
-            using var reader = this.ExecSql(sqlStr, true, keys, values);
-            if (reader == null) { return null; } // would be an internal server error, never happens
-            if (reader.Read()) {
-                return UserDB.ReadUser(reader);
+            using var info = this.ExecSql(sqlStr, true, keys, values);
+            if (info == null) { return null; } // would be an internal server error, never happens
+            if (info.reader.Read()) {
+                return UserDB.ReadUser(info.reader);
             }
             return null;
         }
