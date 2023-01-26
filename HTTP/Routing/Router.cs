@@ -34,7 +34,7 @@ namespace MonsterCardGame.HTTP.Routing {
         }
 
         public HTTP.Response HandleRequest(HTTP.Request request) {
-            Response response = new Response();
+            Response response = new();
             response.Status(Response.Status_e.BAD_REQUEST_400);
 
             // get route
@@ -61,8 +61,8 @@ namespace MonsterCardGame.HTTP.Routing {
             }
 
             // get command args
-            Action.RequestParser requestParser = new Action.RequestParser(request, toDeliver);
-            Helper.Arguments arguments = new Helper.Arguments();
+            Action.RequestParser requestParser = new(request, toDeliver);
+            Helper.Arguments arguments = new();
             foreach (var argId in toDeliver.actionArgIdList) {
                 requestParser.AddArg(argId, arguments);
             }
@@ -95,7 +95,7 @@ namespace MonsterCardGame.HTTP.Routing {
         }
 
         public HTTP.Response HandleRequest(HTTP.Request request) {
-            Response response = new Response();
+            Response response = new();
 
             if (request.Method != "GET") {
                 // this router can only handle GET requests
