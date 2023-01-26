@@ -4,11 +4,11 @@ using System.Data;
 namespace MonsterCardGame.User {
     internal class UserDB : DB.Database, IUserManager {
         // table name
-        private static readonly string _SQL_table = "users";
+        internal static readonly string _SQL_table = "users";
 
         // columns
 
-        private static readonly string _SQL_column_id = "id";
+        internal static readonly string _SQL_column_id = "id";
         private static readonly string _SQL_column_username = "username";
         private static readonly string _SQL_column_password = "password";
         private static readonly string _SQL_column_token = "token";
@@ -75,7 +75,7 @@ namespace MonsterCardGame.User {
             $" WHERE {UserDB._SQL_column_username} = @{UserDB._SQL_column_username};";
         private static readonly string _SQL_update_money =
             $"UPDATE {UserDB._SQL_table} SET " +
-                $"{UserDB._SQL_column_money} = @{UserDB._SQL_column_money}, " +
+                $"{UserDB._SQL_column_money} = @{UserDB._SQL_column_money} " +
             $" WHERE {UserDB._SQL_column_username} = @{UserDB._SQL_column_username};";
 
         // constructor(s)
@@ -169,8 +169,11 @@ namespace MonsterCardGame.User {
             User? old = this.Get(username);
             if (old == null) { return false; }
 
-            var keys   = new string[] { UserDB._SQL_column_money };
-            var values = new object[] { money };
+            var keys   = new string[] {
+                UserDB._SQL_column_money,
+                UserDB._SQL_column_username
+            };
+            var values = new object[] { money, username };
             this.ExecSql(UserDB._SQL_update_money, false, keys, values);
             return true;
         }
@@ -194,13 +197,14 @@ namespace MonsterCardGame.User {
             string bio = readingReader.GetString(UserDB._SQL_column_bio);
             string image = readingReader.GetString(UserDB._SQL_column_image);
 
+            int money = readingReader.GetInt32(UserDB._SQL_column_money);
             bool admin = readingReader.GetBoolean(UserDB._SQL_column_admin);
 
             User user;
             if (admin) {
-                user = new Admin(usern, pass, name, bio, image);
+                user = new Admin(usern, pass, name, bio, image, money);
             } else {
-                user = new User(usern, pass, name, bio, image);
+                user = new User(usern, pass, name, bio, image, money);
             }
 
             string token = readingReader.GetString(UserDB._SQL_column_token);

@@ -52,8 +52,22 @@ namespace MonsterCardGame.HTTP.Routing {
                 return this.HandleRequest(request);
             }
             // normal request
+
+            // check auth
+            User.User? currentUser = Auth.GetUser(this._userCollection, request);
+            toDeliver.auth.SetUser(currentUser);
+            if (!toDeliver.auth.Accept(request)) {
+                // if a user is logged in, but cannot access this (e.g. not an admin)
+                if (currentUser != null) {
+                    response.Status(Response.Status_e.FORBIDDEN_403);
+                    return response;
+                }
+                response.Status(Response.Status_e.UNAUTHORIZED_401);
+                return response;
+            }
+
             // get command
-            Action.Command.ICommand? command = Action.Command.ICommand.CreateCommandByName(this._userCollection, this._cardCollection, this._packageManager, toDeliver.action);
+            Action.Command.ICommand? command = Action.Command.ICommand.CreateCommandByName(currentUser, this._userCollection, this._cardCollection, this._packageManager, toDeliver.action);
             if (command == null) {
                 // something went wrong - on config error (in actions.json); command not implemented (yet)
                 response.Status(Response.Status_e.NOT_IMPLEMENTED_501);
@@ -65,13 +79,6 @@ namespace MonsterCardGame.HTTP.Routing {
             Helper.Arguments arguments = new();
             foreach (var argId in toDeliver.actionArgIdList) {
                 requestParser.AddArg(argId, arguments);
-            }
-
-            // check auth
-            toDeliver.auth.SetUser(Auth.GetUser(this._userCollection, request));
-            if (!toDeliver.auth.Accept(request)) {
-                response.Status(Response.Status_e.UNAUTHORIZED_401);
-                return response;
             }
 
             // execute command

@@ -20,7 +20,7 @@ namespace MonsterCardGame.User {
          * substracts some money
          * */
         public bool Pay(ushort amount) {
-            if (this.Money > amount) {
+            if (this.Money >= amount) {
                 this.Money -= amount;
                 return true;
             }

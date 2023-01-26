@@ -98,12 +98,6 @@ namespace MonsterCardGame.HTTP {
 				// Console.WriteLine("Own user can");
 
 				string token = Auth.GetSentToken(request);
-
-                // this is ugly, but I didn't really have the time
-                string requestedUser = request.Path.Split('/').Last();
-                string loggedInUser = Auth.GetUsernameFromUnsafeToken(token);
-				if (requestedUser != loggedInUser) { return false; }
-
                 if (this._user.Credentials.TokenP.Equals(token)) { return true; }
 				if (Auth.AllowUnsafeToken && Auth.GetUsernameFromUnsafeToken(token) == this._user.Credentials.Username) { return true; }
             }

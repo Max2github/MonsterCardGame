@@ -2,10 +2,9 @@
 namespace MonsterCardGame.Card.Package {
 	internal class Package : Helper.IValid {
         private readonly List<UniqueCard> _cards;
-        public int Price { get; }
+        public static int Price { get; } = 5;
 
-        public Package(int price = 5) {
-            this.Price = price;
+        public Package() {
             this._cards = new();
         }
 
@@ -30,7 +29,7 @@ namespace MonsterCardGame.Card.Package {
         }
 
         public bool IsValid() {
-            return (this.Count() > 0 && this.Price > 0);
+            return (this.Count() > 0);
         }
 	}
 }

@@ -25,7 +25,7 @@ namespace MonsterCardGame.Card.Deck {
                 $"FOREIGN KEY({DeckDB._SQL_column_cardId1}) REFERENCES {CardDB._SQL_table}({CardDB._SQL_column_id}) , " +
                 $"FOREIGN KEY({DeckDB._SQL_column_cardId2}) REFERENCES {CardDB._SQL_table}({CardDB._SQL_column_id}) , " +
                 $"FOREIGN KEY({DeckDB._SQL_column_cardId3}) REFERENCES {CardDB._SQL_table}({CardDB._SQL_column_id}) , " +
-                $"FOREIGN KEY({DeckDB._SQL_column_cardId4}) REFERENCES {CardDB._SQL_table}({CardDB._SQL_column_id}) , " +
+                $"FOREIGN KEY({DeckDB._SQL_column_cardId4}) REFERENCES {CardDB._SQL_table}({CardDB._SQL_column_id})" +
             ");";
 
         // get

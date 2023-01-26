@@ -66,6 +66,13 @@
     "auth": [ "admin" ]
   },
 
+  "\/transactions\/packages": {
+    "method": "POST",
+    "schema": [],
+    "action": [ "package_buy" ],
+    "auth": [ "own", "admin" ]
+  },
+
   "\/card": {
     "method": "POST",
     "schema": [

@@ -70,8 +70,8 @@ namespace MonsterCardGame.DB {
                 if (!expectAnswer) {
                     try {
                         cmd.ExecuteNonQuery();
-                    } catch (Exception e) {
-                        Console.WriteLine(e.Message);
+                    } catch (Exception) {
+                        throw;
                     }
                     connection.Close();
                     return null;
@@ -122,6 +122,7 @@ namespace MonsterCardGame.DB {
 
                 return command(connection);
             } catch (NpgsqlException /*e*/) {
+
                 throw;
                 // throw new DataAccessFailedException("Could not connect to database", e);
             }

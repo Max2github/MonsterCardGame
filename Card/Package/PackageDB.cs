@@ -10,23 +10,31 @@ namespace MonsterCardGame.Card.Package {
         // columns
 
         private static readonly string _SQL_column_packageId = "packageid";
+        // private static readonly string _SQL_column_userId = "userid";
+        private static readonly string _SQL_column_username = "username";
 
         // create table
 
         private static readonly string _SQL_create_table =
             $"CREATE TABLE IF NOT EXISTS {PackageDB._SQL_table} (" +
-                $"{PackageDB._SQL_column_packageId} SERIAL PRIMARY KEY " +
+                $"{PackageDB._SQL_column_packageId} SERIAL PRIMARY KEY, " +
+                $"{PackageDB._SQL_column_username } text " +
+                // $"{PackageDB._SQL_column_userId} bigint, " +
+                //$"FOREIGN KEY ({PackageDB._SQL_column_userId}) REFERENCES {User.UserDB._SQL_table}({User.UserDB._SQL_column_id}) " +
             ");";
         private static readonly string _SQL_create_table_match =
-            $"CREATE TABLE IF NOT EXISTS {PackageDB._SQL_table} (" +
+            $"CREATE TABLE IF NOT EXISTS {PackageDB._SQL_table_match} (" +
                 $"{PackageDB._SQL_column_packageId} bigint, " +
-                $"{CardDB._SQL_column_id} bigint " +
+                $"{CardDB._SQL_column_id} uuid " +
             ");";
 
         // get
 
-        // we just want any package, so we will just use the first
-        private static readonly string _SQL_get = $"SELECT * FROM {PackageDB._SQL_table} LIMIT 1;";
+        // we just want any package, so we will just use the first free one (without owner)
+        private static readonly string _SQL_get_free =
+            $"SELECT * FROM {PackageDB._SQL_table} WHERE {PackageDB._SQL_column_username} IS NULL LIMIT 1;";
+        private static readonly string _SQL_get =
+            $"SELECT * FROM {PackageDB._SQL_table} WHERE {PackageDB._SQL_column_username} = @{PackageDB._SQL_column_username};";
         private static readonly string _SQL_get_cards =
             $"SELECT * FROM {PackageDB._SQL_table_match} WHERE {PackageDB._SQL_column_packageId} = @{PackageDB._SQL_column_packageId};";
 
@@ -34,23 +42,33 @@ namespace MonsterCardGame.Card.Package {
 
         private static readonly string _SQL_insert =
             $"INSERT INTO {PackageDB._SQL_table} (" +
-                $"{PackageDB._SQL_column_packageId} " +
+                $"{PackageDB._SQL_column_packageId}, " +
+                // $"{PackageDB._SQL_column_userId   }, " +
+                $"{PackageDB._SQL_column_username} " +
             ") VALUES (" +
-                $"DEFAULT " +
+                $"DEFAULT, " +
+                $"NULL " +
             $") RETURNING {PackageDB._SQL_column_packageId};";
         private static readonly string _SQL_insert_match =
             $"INSERT INTO {PackageDB._SQL_table_match} (" +
-                $"{PackageDB._SQL_column_packageId} " +
+                $"{PackageDB._SQL_column_packageId}, " +
                 $"{CardDB._SQL_column_id} " +
             ") VALUES (" +
-                $"{PackageDB._SQL_column_packageId} " +
-                $"{CardDB._SQL_column_id} " +
+                $"@{PackageDB._SQL_column_packageId}, " +
+                $"@{CardDB._SQL_column_id} " +
             ");";
 
         // remove
 
         private static readonly string _SQL_delete =
             $"DELETE FROM {PackageDB._SQL_table} WHERE {PackageDB._SQL_column_packageId} = @{PackageDB._SQL_column_packageId};";
+
+        // update
+
+        private static readonly string _SQL_update_owner =
+            $"UPDATE {PackageDB._SQL_table} SET " +
+                $"{PackageDB._SQL_column_username} = @{PackageDB._SQL_column_username} " +
+            $"WHERE {PackageDB._SQL_column_packageId} = @{PackageDB._SQL_column_packageId};";
 
         // non-static attributes
 
@@ -74,8 +92,8 @@ namespace MonsterCardGame.Card.Package {
 
         public int Count() { return this.Count(PackageDB._SQL_table); }
 
-        public PackageWithID? GetWithID() {
-            int? id = this.GetId();
+        public PackageWithID? GetWithID(string? username = null) {
+            int? id = this.GetId(username);
             if (id == null) { return null; }
             int idHelp = Convert.ToInt32(id); // cannot convert normally from int? to int
 
@@ -89,16 +107,12 @@ namespace MonsterCardGame.Card.Package {
             return pack;
         }
 
-        public Package? Get() {
-            return this.GetWithID()?.package;
+        public Package? Get(string? username = null) {
+            return this.GetWithID(username)?.package;
 		}
 
         public bool Add(Package package) {
             if (!package.IsValid()) { return false; }
-
-            // this.ExecSql(PackageDB._SQL_insert, false);
-            object? result = this.ExecSqlScalar(PackageDB._SQL_insert);
-            int id = Convert.ToInt32(result);
 
             var keys = new string[] {
                 PackageDB._SQL_column_packageId,
@@ -111,12 +125,16 @@ namespace MonsterCardGame.Card.Package {
                 if (card is null || !card.IsValid()) { /* some error - should never happen */ return false; }
 
                 UniqueCard? already = this._cardDB.Get(card.Guid);
-                if (already is not null) {
+                if (!(already is null)) {
                     return false;
                 }
             }
 
-            // insert into cards + packages + match table
+            // insert package
+            object? result = this.ExecSqlScalar(PackageDB._SQL_insert);
+            int id = Convert.ToInt32(result);
+
+            // insert into cards + match table
             for (int i = 0; i < package.Count(); i++) {
                 UniqueCard? card = package.Get(i);
 
@@ -140,7 +158,7 @@ namespace MonsterCardGame.Card.Package {
         }
 
         /**
-         * Get and Remove a deck
+         * Get and Remove a package
          * */
         public Package? Pop() {
             PackageWithID? pack = this.GetWithID();
@@ -149,12 +167,29 @@ namespace MonsterCardGame.Card.Package {
             return pack.Value.package;
         }
 
+        /**
+         * buy a package for a user
+         * */
+        public Package? Buy(string username) {
+            PackageWithID? pack = this.GetWithID(); // get free package
+            if (pack is null) { return null; } // no free package to buy
+            this.SetOwner(username, pack.Value.id); // set owner -> can not buy annymore
+            return pack.Value.package; // return package
+        }
+
         // private functions
 
-        private int? GetId() {
-            using var info = this.ExecSql(PackageDB._SQL_get);
+        private int? GetId(string? username = null) {
+            var keys   = (username is null) ? null : new string[] { PackageDB._SQL_column_username };
+            var values = (username is null) ? null : new object[] { username };
+            string sqlStatement = (username is null) ? PackageDB._SQL_get_free : PackageDB._SQL_get;
+
+            using ReaderAndConnection? info = this.ExecSql(sqlStatement, true, keys, values);
             if (info == null) { return null; }
-            return info.reader.GetInt32(PackageDB._SQL_column_packageId);
+            if (info.reader.Read()) {
+                return info.reader.GetInt32(PackageDB._SQL_column_packageId);
+            }
+            return null;
         }
 
         private Package? GetPackage(int id) {
@@ -172,6 +207,15 @@ namespace MonsterCardGame.Card.Package {
                 /* bool success =*/ package.Add(card!);
             }
             return package;
+        }
+
+        private void SetOwner(string username, int id) {
+            var keys = new string[] {
+                PackageDB._SQL_column_username,
+                PackageDB._SQL_column_packageId
+            };
+            var values = new object[] { username, id };
+            this.ExecSql(PackageDB._SQL_update_owner, false, keys, values);
         }
     }
 }

@@ -12,6 +12,8 @@ namespace MonsterCardGame.HTTP.Routing.Action.Command.User {
             object password = arguments.Get(1);
             // if (username is string && password is string) {
             if (arguments.IsValid(2, typeof(string), typeof(string))) {
+
+
                 bool success = this._userCollection.Add(new MonsterCardGame.User.User((string)username, (string)password));
 				if (success) { response.Status(Response.Status_e.CREATED_201); }
 				else { response.Status(Response.Status_e.CONFLICT_409); }
