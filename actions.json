@@ -83,6 +83,7 @@
   "\/deck": {
     "method": "PUT",
     "schema": [],
+    "dataType": "array",
     "action": [ "deck_set", "d0" ],
     "auth": [ "own" ]
   },

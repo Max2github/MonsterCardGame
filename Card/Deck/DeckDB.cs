@@ -4,11 +4,11 @@ using MonsterCardGame.Card.Package;
 
 namespace MonsterCardGame.Card.Deck {
 	internal class DeckDB : DB.Database, IDeckManager {
-		private static readonly string _SQL_table = "packages";
+		private static readonly string _SQL_table = "deck";
 
         // columns
 
-        private static readonly string _SQL_column_deckId = "packageid";
+        private static readonly string _SQL_column_deckId = "deckid";
         private static readonly string _SQL_column_cardId1 = "cardid1";
         private static readonly string _SQL_column_cardId2 = "cardid2";
         private static readonly string _SQL_column_cardId3 = "cardid3";
